@@ -1,0 +1,14 @@
+NODE JS:
+--------
+
+⦁	NODE JS is free & open source , cross platform for JAVASCRIPT RUNTIME ENVIRONMENT.
+
+
+SYNCHRONOUS :
+
+⦁	It will run code LINE BY LINE and will block others request
+
+
+ASYNCHRONOUS :
+
+⦁	It will run AT A TIME and It won't block others request
