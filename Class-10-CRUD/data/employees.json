@@ -1,0 +1,6 @@
+[
+    {"emp":101,"ename":"Guru","esal":55000,"loc":"TamilNadu"},
+    {"emp":102,"ename":"Harish","esal":45000,"loc":"TamilNadu"},
+    {"emp":103,"ename":"Varun","esal":35000,"loc":"TamilNadu"},
+    {"emp":104,"ename":"Ram","esal":25000,"loc":"TamilNadu"}
+]
