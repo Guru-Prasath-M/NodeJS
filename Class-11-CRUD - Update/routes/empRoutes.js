@@ -1,61 +1,141 @@
-import express from "express";
-import fs from "fs/promises";
-import path from "path";
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
 
-const router = express.Router();
-
-// Define file path for employees data
-const dataFilePath = path.resolve("data", "employees.json");
-
-// Helper: Read employees from file
-async function getEmployees() {
-  try {
-    const data = await fs.readFile(dataFilePath, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Error reading employee file:", error);
-    return [];
-  }
-}
-
-// Helper: Save employees to file
-async function saveEmployees(employees) {
-  await fs.writeFile(dataFilePath, JSON.stringify(employees, null, 2));
-}
+let router = express.Router();
 
 /*
-Update Employee API
---------------------
-URL: http://127.0.0.1:8080/emp/update/:eid
+Create
+-------
+Usage: Create new employee
+API: http://127.0.0.1:8080/emp/create
+Method: POST
+Body: { eid, ename, esal, loc }
+*/
+router.post("/create", async (req, resp) => {
+    console.log("Inside POST Method");
+    let emp = req.body;
+    let employees = await getEmployees();
+
+    let employee = employees.find((employee) => employee.eid === emp.eid);
+    if (employee) {
+        return resp.status(400).json({ "msg": "Employee already exists" });
+    }
+
+    employees.push(emp);
+    await saveEmployees(employees);
+    return resp.status(200).json({ "msg": "New Employee Created Successfully" });
+});
+
+/*
+Read
+------
+Usage: Fetch all employees
+API: http://127.0.0.1:8080/emp/read
+Method: GET
+*/
+router.get("/read", async (req, resp) => {
+    console.log("Inside GET Method");
+    let employees = await getEmployees();
+    return resp.status(200).json(employees);
+});
+
+/*
+Update
+-------
+Usage: Update existing employee details
+API: http://127.0.0.1:8080/emp/update/:eid
 Method: PUT
 Body: { ename?, esal?, loc? }
 */
-router.put("/update/:eid", async (req, res) => {
-  console.log("Inside PUT Method");
+router.put("/update/:eid", async (req, resp) => {
+    console.log("Inside PUT Method");
+    let empId = req.params.eid;
+    let newData = req.body;
 
-  const empId = req.params.eid;
-  const newData = req.body;
+    let employees = await getEmployees();
+    let index = employees.findIndex((emp) => emp.eid == empId);
 
-  let employees = await getEmployees();
+    if (index === -1) {
+        return resp.status(404).json({ "msg": "Employee not found" });
+    }
 
-  // Find employee by ID
-  const index = employees.findIndex((emp) => emp.eid == empId);
-  if (index === -1) {
-    return res.status(404).json({ msg: "Employee not found" });
-  }
+    // Merge existing employee data with new data
+    employees[index] = { ...employees[index], ...newData };
 
-  // Merge existing data with new data
-  employees[index] = { ...employees[index], ...newData };
-
-  // Save to file
-  await saveEmployees(employees);
-
-  console.log("Updated Employee:", employees[index]);
-
-  return res.status(200).json({
-    msg: "Employee updated successfully",
-    employee: employees[index],
-  });
+    await saveEmployees(employees);
+    return resp.status(200).json({ "msg": "Employee updated successfully", "employee": employees[index] });
 });
+
+/*
+Delete
+-------
+Usage: Delete existing employee
+API: http://127.0.0.1:8080/emp/delete/:eid
+Method: DELETE
+*/
+router.delete("/delete/:eid", async (req, resp) => {
+    console.log("Inside DELETE Method");
+    let empId = req.params.eid;
+
+    let employees = await getEmployees();
+    let index = employees.findIndex((emp) => emp.eid == empId);
+
+    if (index === -1) {
+        return resp.status(404).json({ "msg": "Employee not found" });
+    }
+
+    // Remove employee
+    employees.splice(index, 1);
+
+    await saveEmployees(employees);
+    return resp.status(200).json({ "msg": "Employee deleted successfully" });
+});
+
+/*
+Update
+--------
+usage: update employee by empId
+Rest API URL: http://127.0.0.1:8080/emp/update/101
+method type: put
+required fields
+*/
+router.put("/update/:eid",async(req,resp)=>{
+    //read url path parameter/ variable
+    let eid =parseInt(req.params.eid);
+    console.log(typeof eid)
+
+    //read form data/postman body data
+    let emp_Data = req.body;
+    console.log(emp_Data)
+
+    let employees = await getEmployees();
+    //Verify employee exists or not?
+    let employee = employees.find(emp=>emp.eid===empId)
+    console.log(employee);
+    if(!employee){
+      return resp.status(404).json({"msg":"Employee Not Exists"})
+    } 
+
+    let remaining_Employees = employees.filter(emp=>emp.eid!==empId)
+    console.log(remaining_Employees);
+    remaining_Employees.unshift(emp_Data)
+    //write updated data
+    await saveEmployees(remaining_Employees)
+    return resp.status(200).json({"msg":"Employee Updated"})
+    
+})
+
+/* Helper Functions */
+let getEmployees = () => {
+    let emp_file = path.join(process.cwd(), "data", "employees.json");
+    let emp_Data = fs.readFileSync(emp_file, 'utf-8');
+    return JSON.parse(emp_Data);
+};
+
+let saveEmployees = (employees) => {
+    let emp_file = path.join(process.cwd(), "data", "employees.json");
+    fs.writeFileSync(emp_file, JSON.stringify(employees, null, 2));
+};
 
 export default router;
