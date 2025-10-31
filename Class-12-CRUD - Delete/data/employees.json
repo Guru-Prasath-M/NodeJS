@@ -1,0 +1,32 @@
+[
+  {
+    "eid": 101,
+    "ename": "Guru Prasath",
+    "esal": 75000,
+    "loc": "Bangalore"
+  },
+  {
+    "eid": 102,
+    "ename": "Harish",
+    "esal": 45000,
+    "loc": "TamilNadu"
+  },
+  {
+    "eid": 103,
+    "ename": "Varun",
+    "esal": 35000,
+    "loc": "TamilNadu"
+  },
+  {
+    "eid": 104,
+    "ename": "Ram",
+    "esal": 25000,
+    "loc": "TamilNadu"
+  },
+  {
+    "eid": 105,
+    "ename": "Guru Prasath",
+    "esal": 75000,
+    "loc": "Bangalore"
+  }
+]
